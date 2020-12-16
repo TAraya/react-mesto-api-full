@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
+    index: true,
     unique: true,
     validate: {
       validator(value) {

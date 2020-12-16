@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { errors } = require('celebrate');
+const { celebrate, errors, Joi } = require('celebrate');
+const cors = require('cors');
 const mongoose = require('mongoose');
 
 const { login, createUser } = require('./controllers/users.js');
@@ -9,7 +10,7 @@ const usersRouter = require('./routes/users.js');
 const auth = require('./middlewares/auth.js');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3001 } = process.env;
 
 const app = express();
 
@@ -21,6 +22,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 
 app.use(bodyParser.json());
+app.use(cors());
+
 app.use(requestLogger);
 
 app.get('/crash-test', () => {
@@ -29,8 +32,27 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required(),
+      password: Joi.string().required().min(6),
+    }),
+  }),
+  login,
+);
+
+app.post(
+  '/signup',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required(),
+      password: Joi.string().required().min(6),
+    }),
+  }),
+  createUser,
+);
 
 app.use(auth);
 app.use('/cards', cardsRouter);

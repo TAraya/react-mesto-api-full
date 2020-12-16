@@ -81,16 +81,18 @@ module.exports.createUser = (req, res, next) => {
     password,
   } = req.body;
 
-  User.create({
-    name,
-    about,
-    avatar,
-    email,
-    password,
-  })
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError'
+         || (err.name === 'MongoError' && err.code === 11000)) {
         const validationError = new Error('Переданы некорректные данные');
         validationError.statusCode = 400;
 

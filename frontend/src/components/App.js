@@ -13,11 +13,10 @@ import Main from './Main.js';
 import ProtectedRoute from './ProtectedRoute.js';
 import Register from './Register.js';
 import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
-import { api, authApi, findToken, storeToken, removeToken } from '../utils/utils.js';
+import { api, findToken, storeToken, removeToken } from '../utils/utils.js';
 
 function App() {
   const [loggedIn, setLoggedIn] = React.useState(false);
-  const [login, setLogin] = React.useState('');
   const [tooltipState, setTooltipState] = React.useState({ isOpened: false });
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
@@ -31,18 +30,14 @@ function App() {
 
   React.useEffect(() => {
     authorizeOnStartup();
-    loadData();   
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function loadData() {
-    Promise.all([
-      api.getUser(),
-      api.getCards()])
-      .then(result => {
-        const [userData, cardsData] = result;
-        setCurrentUser(userData);
-        setCards(cardsData)
+  function loadCards() {
+    const token = findToken();
+    api.getCards(token)
+      .then(response => {
+        setCards(response.data)
       })
       .catch(error => console.log(
         'Ошибка при получении данных с сервера: ' + JSON.stringify(error)));
@@ -51,10 +46,11 @@ function App() {
   function authorizeOnStartup() {
     const token = findToken();
     if (token) {
-      authApi.getCurrentUser(token)
-        .then(data => {
-          setLogin(data.email);
+      api.getUser(token)
+        .then(response => {
           setLoggedIn(true);
+          setCurrentUser(response.data);
+          loadCards();
           history.push("/");
         })
         .catch(error => {
@@ -69,9 +65,10 @@ function App() {
   }
 
   function handleUpdateUser(user) {
-    api.updateUser(user)
-      .then(userData => {
-        setCurrentUser(userData);
+    const token = findToken();
+    api.updateUser(user, token)
+      .then(response => {
+        setCurrentUser(response.data);
         closeAllPopups();
       })
       .catch(error => console.log('Ошибка обновления данных пользователя: ' + error));
@@ -82,9 +79,10 @@ function App() {
   }
 
   function handleAddPlace(card) {
-    api.createCard(card)
-      .then(newCard => {
-        setCards([newCard, ...cards]);
+    const token = findToken();
+    api.createCard(card, token)
+      .then(response => {
+        setCards([response.data, ...cards]);
         closeAllPopups();
       })
       .catch(error => console.log('Ошибка добавления места: ' + error));
@@ -95,9 +93,10 @@ function App() {
   }
 
   function handleUpdateAvatar(avatar) {
-    api.updateAvatar(avatar)
-      .then(userData => {
-        setCurrentUser(userData);
+    const token = findToken();
+    api.updateAvatar(token)
+      .then(response => {
+        setCurrentUser(response.data);
         closeAllPopups();
       })
       .catch(error => console.log('Ошибка обновления аватара пользователя: ' + error));
@@ -108,18 +107,19 @@ function App() {
   }
 
   function handleCardLike(card) {
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    const token = findToken();
+    const isLiked = card.likes.some(i => i === currentUser._id);
     if (!isLiked) {
-      api.likeCard(card._id)
-        .then((newCard) => {
-          const newCards = cards.map((c) => c._id === card._id ? newCard : c);
+      api.likeCard(card._id, token)
+        .then((response) => {
+          const newCards = cards.map((c) => c._id === card._id ? response.data : c);
           setCards(newCards);
         })
         .catch(error => console.log('Ошибка при простановке лайка для карточки: ' + error));
     } else {
-      api.unlikeCard(card._id)
-        .then((newCard) => {
-          const newCards = cards.map((c) => c._id === card._id ? newCard : c);
+      api.unlikeCard(card._id, token)
+        .then((response) => {
+          const newCards = cards.map((c) => c._id === card._id ? response.data : c);
           setCards(newCards);
         })
         .catch(error => console.log('Ошибка при снятии лайка для карточки: ' + error));
@@ -131,7 +131,8 @@ function App() {
   }
 
   function handleCardDelete(card) {
-    api.removeCard(card._id)
+    const token = findToken();
+    api.removeCard(card._id, token)
       .then(() => {
         setCards(cards.filter(oldCard => oldCard._id !== card._id));
         closeAllPopups();
@@ -148,11 +149,16 @@ function App() {
   }
 
   function handleLogin({ email, password }) {
-    authApi.signIn({ email, password })
+    api.signIn({ email, password })
       .then(data => {
         storeToken(data.token);
-        setLogin(email);
         setLoggedIn(true);
+
+        return api.getUser(data.token);
+      })
+      .then(response => {
+        setCurrentUser(response.data);
+        loadCards();
         history.push("/");
       })
       .catch(error => {
@@ -168,13 +174,12 @@ function App() {
   function handleLogout() {
     if (loggedIn) {
       setLoggedIn(false);
-      setLogin('');
       removeToken();
     }
   }
 
   function handleRegister({ email, password }) {
-    authApi.signUp({ email, password })
+    api.signUp({ email, password })
       .then(_ => {
         setTooltipState({
           isOpened: true,
@@ -222,7 +227,7 @@ function App() {
             />
           </Route>
           <ProtectedRoute path="/" redirect="/sign-in" loggedIn={loggedIn}>
-            <Header loggedIn={loggedIn} login={login} onLogout={handleLogout} />
+            <Header loggedIn={loggedIn} login={currentUser.email} onLogout={handleLogout} />
             <Main
               cards={cards}
               onEditProfile={editProfile}

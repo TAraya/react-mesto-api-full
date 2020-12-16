@@ -4,63 +4,77 @@ export default class Api {
     this._defaultHeaders = options.headers;
   }
 
-  getUser() {
+  signUp(data) {
     return fetch(
-      this._baseUrl + '/users/me',
-      this._getRequestOptions())
-      .then(this._readResponseContent);
-  }
-
-  updateUser(data) {
-    return fetch(
-      this._baseUrl + '/users/me',
-      this._getRequestOptions('PATCH', data))
-      .then(this._readResponseContent);
-  }
-
-  updateAvatar(data) {
-    return fetch(
-      this._baseUrl + '/users/me/avatar',
-      this._getRequestOptions('PATCH', data))
-      .then(this._readResponseContent);
-  }
-
-  getCards() {
-    return fetch(
-      this._baseUrl + '/cards',
-      this._getRequestOptions())
-      .then(this._readResponseContent);
-  }
-
-  createCard(data) {
-    return fetch(
-      this._baseUrl + '/cards',
+      this._baseUrl + '/signup',
       this._getRequestOptions('POST', data))
       .then(this._readResponseContent);
   }
 
-  removeCard(id) {
+  signIn(data) {
+    return fetch(
+      this._baseUrl + '/signin',
+      this._getRequestOptions('POST', data))
+      .then(this._readResponseContent);
+  }
+
+  getUser(token) {
+    return fetch(
+      this._baseUrl + '/users/me',
+      this._getRequestOptions('GET', null, token))
+      .then(this._readResponseContent);
+  }
+
+  updateUser(data, token) {
+    return fetch(
+      this._baseUrl + '/users/me',
+      this._getRequestOptions('PATCH', data, token))
+      .then(this._readResponseContent);
+  }
+
+  updateAvatar(data, token) {
+    return fetch(
+      this._baseUrl + '/users/me/avatar',
+      this._getRequestOptions('PATCH', data, token))
+      .then(this._readResponseContent);
+  }
+
+  getCards(token) {
+    return fetch(
+      this._baseUrl + '/cards',
+      this._getRequestOptions('GET', null, token))
+      .then(this._readResponseContent);
+  }
+
+  createCard(data, token) {
+    return fetch(
+      this._baseUrl + '/cards',
+      this._getRequestOptions('POST', data, token))
+      .then(this._readResponseContent);
+  }
+
+  removeCard(id, token) {
     return fetch(
       this._baseUrl + '/cards/' + id,
-      this._getRequestOptions('DELETE'))
+      this._getRequestOptions('DELETE', null, token))
       .then(this._ensureSuccess);
   }
 
-  likeCard(id) {
+  likeCard(id, token) {
     return fetch(
-      this._baseUrl + '/cards/likes/' + id,
-      this._getRequestOptions('PUT'))
+      this._baseUrl + '/cards/' + id + '/likes',
+      this._getRequestOptions('PUT', null, token))
       .then(this._readResponseContent);
   }
 
-  unlikeCard(id) {
+  unlikeCard(id, token) {
     return fetch(
-      this._baseUrl + '/cards/likes/' + id,
-      this._getRequestOptions('DELETE'))
+      this._baseUrl + '/cards/' + id + '/likes',
+      this._getRequestOptions('DELETE', null, token))
       .then(this._readResponseContent);
   }
 
-  _getRequestOptions(method, data) {
+  _getRequestOptions(method, data, token) {
     const options = {
       headers: { ...this._defaultHeaders }
     };
@@ -71,6 +85,10 @@ export default class Api {
 
     if (data) {
       options.body = JSON.stringify(data);
+    }
+
+    if (token) {
+      options.headers["Authorization"] = `Bearer ${token}`;
     }
 
     return options;
