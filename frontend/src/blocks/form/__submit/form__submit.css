@@ -1,0 +1,19 @@
+.form__submit {
+  width: 100%;
+  min-height: 50px;
+  color: white;
+  background-color: black;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 2px;
+  outline: none;
+  font-size: 18px;
+  line-height: 1.2;
+  text-align: center;
+  transition: opacity .3s ease-in-out;
+}
+
+.form__submit:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}

@@ -1,0 +1,11 @@
+.sign-form {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto auto;
+  width: 400px;
+  height: 70vh;
+  min-height: 300px;
+  color: white;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 20px;
+}

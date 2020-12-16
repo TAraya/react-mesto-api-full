@@ -1,0 +1,9 @@
+.form__input-error {
+  visibility: hidden;
+  color: red;
+  font-size: 12px;
+  line-height: 1.25;
+  word-wrap: break-word;
+  min-height: 30px;
+  margin: 5px 0 12px;
+}

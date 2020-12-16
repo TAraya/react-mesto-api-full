@@ -1,0 +1,14 @@
+.profile__info {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 25px;
+  overflow: hidden;
+}
+
+@media (max-width: 540px) {
+  .profile__info {
+    margin-top: 15px;
+  }
+}

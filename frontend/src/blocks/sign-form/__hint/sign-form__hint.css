@@ -1,0 +1,19 @@
+.sign-form__hint {
+  grid-row-start: 6;
+  grid-row-end: 6;
+  font-size: 14px;
+  line-height: 1.2;
+  text-align: center;
+  margin-top: 15px;
+  transition: opacity .3s ease-in-out;
+}
+
+.sign-form__hint a:hover {
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.sign-form__hint a:visited {
+  color: white;
+  text-decoration: none;
+}

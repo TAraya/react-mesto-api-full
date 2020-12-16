@@ -1,0 +1,7 @@
+.gallery {
+  max-width: 920px;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 19px 30px;
+}

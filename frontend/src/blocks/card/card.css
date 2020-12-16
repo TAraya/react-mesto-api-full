@@ -1,0 +1,13 @@
+.card {
+  display: grid;
+  position: relative;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  color: black;
+  overflow: hidden;
+  background-color: white;
+  border-radius: 10px;
+  margin: 0;
+  padding: 0;
+}
