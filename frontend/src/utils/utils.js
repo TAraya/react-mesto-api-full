@@ -1,7 +1,7 @@
 import Api from '../utils/Api.js';
  
 export const api = new Api({
-  baseUrl: 'api.mesto1520.students.nomoreparties.xyz',
+  baseUrl: 'https://api.mesto1520.students.nomoreparties.xyz',
   headers: {
     'Content-Type': 'application/json'
   }
