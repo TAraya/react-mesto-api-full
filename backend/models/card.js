@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const { urlPattern } = require('../utils/validation.js');
+
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -10,7 +12,7 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
-    match: /^https?:\/\/(www\.)?[0-9a-z\-._~:?#[\]/@!$&'()*+,;=]+#?/i,
+    match: urlPattern,
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

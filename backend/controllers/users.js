@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
+const ConflictError = require('../errors/conflict-error.js');
 const NotFoundError = require('../errors/not-found-error.js');
 const ValidationError = require('../errors/validation-error.js');
 
@@ -89,14 +90,25 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError'
-         || (err.name === 'MongoError' && err.code === 11000)) {
-        const validationError = new Error('Переданы некорректные данные');
-        validationError.statusCode = 400;
+    .then((user) => {
+      const userForSend = {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      };
 
-        next(validationError);
+      res.send({ data: userForSend });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Переданы некорректные данные'));
+        return;
+      }
+
+      if (err.name === 'MongoError' && err.code === 11000) {
+        next(new ConflictError('Пользователь с данным email уже зарегистрирован'));
         return;
       }
 

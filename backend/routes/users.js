@@ -1,6 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
-
 const usersRouter = require('express').Router();
+
+const { urlValidator } = require('../utils/validation.js');
 
 const {
   getUsers,
@@ -12,7 +13,26 @@ const {
 
 usersRouter.get('/', getUsers);
 usersRouter.get('/me', getCurrentUser);
-usersRouter.get('/:id', getUser);
+
+usersRouter.get(
+  '/:id',
+  celebrate({
+    headers: Joi.object().keys({
+      id: Joi.string().alphanum().length(24),
+    }).unknown(true),
+  }),
+  getUser,
+);
+
+usersRouter.patch(
+  '/me/avatar',
+  celebrate({
+    body: Joi.object().keys({
+      avatar: Joi.string().required().custom(urlValidator),
+    }),
+  }),
+  updateCurrentUserAvatar,
+);
 
 usersRouter.patch(
   '/me',
@@ -23,16 +43,6 @@ usersRouter.patch(
     }),
   }),
   updateCurrentUser,
-);
-
-usersRouter.patch(
-  '/me/avatar',
-  celebrate({
-    body: Joi.object().keys({
-      avatar: Joi.string().uri(),
-    }),
-  }),
-  updateCurrentUserAvatar,
 );
 
 module.exports = usersRouter;
