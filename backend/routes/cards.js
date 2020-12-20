@@ -28,7 +28,7 @@ cardsRouter.delete(
   '/:id',
   celebrate({
     headers: Joi.object().keys({
-      id: Joi.string().alphanum().length(24),
+      id: Joi.string().hex().length(24),
     }).unknown(true),
   }),
   deleteCard,
@@ -38,7 +38,7 @@ cardsRouter.put(
   '/:id/likes',
   celebrate({
     headers: Joi.object().keys({
-      id: Joi.string().alphanum().length(24),
+      id: Joi.string().hex().length(24),
     }).unknown(true),
   }),
   likeCard,
@@ -48,7 +48,7 @@ cardsRouter.delete(
   '/:id/likes',
   celebrate({
     headers: Joi.object().keys({
-      id: Joi.string().alphanum().length(24),
+      id: Joi.string().hex().length(24),
     }).unknown(true),
   }),
   unlikeCard,

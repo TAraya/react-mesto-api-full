@@ -10,6 +10,7 @@ const usersRouter = require('./routes/users.js');
 const auth = require('./middlewares/auth.js');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/not-found-error.js');
+const { notWhitespacesValidator } = require('./utils/validation.js');
 
 const {
   PORT = 3001,
@@ -25,8 +26,8 @@ mongoose.connect(CONN_STRING, {
   useUnifiedTopology: true,
 });
 
-app.use(bodyParser.json());
 app.use(cors());
+app.use(bodyParser.json());
 
 app.use(requestLogger);
 
@@ -40,7 +41,7 @@ app.post(
   '/signin',
   celebrate({
     body: Joi.object().keys({
-      email: Joi.string().required().email(),
+      email: Joi.string().required().email().custom(notWhitespacesValidator),
       password: Joi.string().required().min(6),
     }),
   }),
@@ -52,7 +53,7 @@ app.post(
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().required().email(),
-      password: Joi.string().required().min(6),
+      password: Joi.string().required().min(6).custom(notWhitespacesValidator),
     }),
   }),
   createUser,

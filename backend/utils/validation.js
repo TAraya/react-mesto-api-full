@@ -9,3 +9,11 @@ module.exports.urlValidator = (value, helper) => {
 
   return helper.error('any.invalid');
 };
+
+module.exports.notWhitespacesValidator = (value, helper) => {
+  if (value.trim().length > 0) {
+    return value;
+  }
+
+  return helper.error('any.invalid');
+};
